@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Based on an example found at
+https://stackoverflow.com/questions/3496269/how-do-i-put-a-border-around-an-android-textview -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle" >
+
+    <!-- View background color -->
+    <solid
+        android:color="@color/cellBG" >
+    </solid>
+
+
+
+</shape>
+
