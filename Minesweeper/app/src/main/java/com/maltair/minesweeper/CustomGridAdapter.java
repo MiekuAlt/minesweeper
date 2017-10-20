@@ -1,6 +1,7 @@
 package com.maltair.minesweeper;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,6 +45,16 @@ public class CustomGridAdapter extends BaseAdapter {
         }
         TextView tv = view.findViewById(R.id.textview);
         tv.setText(items[i]);
+        if(items[i] != null && items[i].equals(" ")) {
+            tv.setBackgroundColor(Color.parseColor("#81CC47"));
+        } else if(items[i] != null && items[i].equals("*")) {
+            tv.setBackgroundColor(Color.parseColor("#FF4081"));
+        } else if(items[i] != null && items[i].equals("F")) {
+            tv.setBackgroundColor(Color.parseColor("#6C5CE8"));
+        } else if(items[i] != null && !items[i].equals(" ")) {
+            tv.setBackgroundColor(Color.parseColor("#BEC9FF"));
+        }
         return view;
     }
+
 }
