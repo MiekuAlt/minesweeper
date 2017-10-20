@@ -10,6 +10,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -21,21 +22,23 @@ import static com.maltair.minesweeper.R.layout.cell;
 
 public class MainActivity extends AppCompatActivity {
 
-    public final int NUM_MINES = 8;
+    public int NUM_MINES = 8;
     public boolean gameStarted = false;
     public GridView gv;
     public String[] items = new String[81];
     public String[] key = new String[81];
-
-    // The cell that is selected by the user, -1 means no cell
-//    public int selectedCell = -1;
+    private SeekBar seekBar;
+    private int difficulty; // 0 = easy, 1 = medium, 2 = hard
+    private TextView difficultyText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
+        seekBar = (SeekBar) findViewById(R.id.seekBar);
+        difficultyText = (TextView) findViewById(R.id.difficultyView);
+        difficulty = 0;
         gv = (GridView) this.findViewById(R.id.myGrid);
         CustomGridAdapter gridAdapter = new CustomGridAdapter(MainActivity.this, items);
         gv.setAdapter(gridAdapter);
@@ -54,24 +57,40 @@ public class MainActivity extends AppCompatActivity {
                 // Reveals the clicked cell
                 checkLocation(position);
 
-                // Colour the previous cell back to the original colour
-//                if(selectedCell != -1 && selectedCell != position) {
-//                    View oldView = gv.getChildAt(selectedCell);
-//                    ll = (LinearLayout) oldView;
-//                    TextView backSelectedItem = ll.findViewById(R.id.textview);
-//                    backSelectedItem.setBackgroundColor(Color.parseColor("#7288FF"));
-//                }
-
-//                selectedCell = position;
             }
         });
+
+        // Detecting changes to the seekbar
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                if(i == 0) { // Easy
+                    difficultyText.setText("Difficulty: Easy");
+                    difficulty = 0;
+                } else if(i == 1) { // Medium
+                    difficultyText.setText("Difficulty: Medium");
+                    difficulty = 1;
+                } else { // Hard
+                    difficultyText.setText("Difficulty: Hard");
+                    difficulty = 2;
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+
     }
 
     // Checks the location selected, and reveals it
     public void checkLocation(int pos) {
         if(key[pos].equals("*")) { // Stepping on a mine
             items[pos] = key[pos];
-            debugDisp("You Lose!");
+            // TODO: Losing condition
         } else if(key[pos].equals("0")) { // No danger
             uncoverZeros(pos);
         } else {
@@ -173,45 +192,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Sets the value of the selected grid based on the value of the button pressed
-//    public void setGridValue(View v){
-//        if(selectedCell != -1) {
-//            Button curBut = (Button) findViewById(v.getId());
-//            String butVal = curBut.getText().toString(); // This is the button's value
-//
-//            items[selectedCell] = butVal;
-//            CustomGridAdapter gridAdapter = new CustomGridAdapter(MainActivity.this, items);
-//            gv.setAdapter(gridAdapter);
-//
-//            selectedCell = -1;
-//        }
-//    }
+    // Restarts the game
+    public void restartGame(View v) {
 
-    // Randomizes the values of the grid that have not been entered yet
-//    public void randomizeGrid(View v) {
-//        for(int i = 0; i < items.length; i++) {
-//            if(items[i] == null) {
-//                String possibleLetters[] = new String[] {"A", "B", "C", "D", "E", "F", "G", "H", "I"};
-//                Random rand = new Random();
-//                int randomNum = rand.nextInt(9);
-//                String randLetter = possibleLetters[randomNum];
-//                items[i] = randLetter;
-//            }
-//        }
-//
-//
-//
-//        // Updating the grid's view
-//        CustomGridAdapter gridAdapter = new CustomGridAdapter(MainActivity.this, items);
-//        gv.setAdapter(gridAdapter);
-//    }
+        // Determines the number of mines
+        if(difficulty == 0) { // Easy
+            NUM_MINES = 8;
+        } else if(difficulty == 1) { // Medium
+            NUM_MINES = 24;
+        } else { // Hard
+            NUM_MINES = 40;
+        }
 
-
-    // This is just for debugging
-    // TODO: Remove this!
-    public void debugDisp(String msg) {
-        TextView debugView = (TextView) findViewById(R.id.debugView);
-        debugView.setText(msg);
+        items = new String[81];
+        gameStarted = false;
+        CustomGridAdapter gridAdapter = new CustomGridAdapter(MainActivity.this, items);
+        gv.setAdapter(gridAdapter);
     }
+
 
 } // end of MainActivity class
