@@ -16,13 +16,13 @@ import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
-    public final int NUM_MINES = 80;
+    public final int NUM_MINES = 8;
     public boolean gameStarted = false;
     public GridView gv;
     public String[] items = new String[81];
 
     // The cell that is selected by the user, -1 means no cell
-    public int selectedCell = -1;
+//    public int selectedCell = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,29 +37,21 @@ public class MainActivity extends AppCompatActivity {
         gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                // TODO: For testing...
-                String debugMsg = "";
-                ArrayList buds = findBuddies(position);
-                for(int i = 0; i < buds.size(); i++){
-                    debugMsg += " " + buds.get(i);
-                }
-                debugDisp(debugMsg);
-
-                // Change the colour of the selected cell
-                LinearLayout ll = (LinearLayout) view;
-                TextView tv = ll.findViewById(R.id.textview);
-                tv.setBackgroundColor(Color.parseColor("#FF4081"));
+                
+//                // Change the colour of the selected cell
+//                LinearLayout ll = (LinearLayout) view;
+//                TextView tv = ll.findViewById(R.id.textview);
+//                tv.setBackgroundColor(Color.parseColor("#FF4081"));
 
                 // Colour the previous cell back to the original colour
-                if(selectedCell != -1 && selectedCell != position) {
-                    View oldView = gv.getChildAt(selectedCell);
-                    ll = (LinearLayout) oldView;
-                    TextView backSelectedItem = ll.findViewById(R.id.textview);
-                    backSelectedItem.setBackgroundColor(Color.parseColor("#7288FF"));
-                }
+//                if(selectedCell != -1 && selectedCell != position) {
+//                    View oldView = gv.getChildAt(selectedCell);
+//                    ll = (LinearLayout) oldView;
+//                    TextView backSelectedItem = ll.findViewById(R.id.textview);
+//                    backSelectedItem.setBackgroundColor(Color.parseColor("#7288FF"));
+//                }
 
-                selectedCell = position;
+//                selectedCell = position;
 
                 if(!gameStarted) { // This activates on the first press
                     gameStarted = true;
@@ -88,6 +80,9 @@ public class MainActivity extends AppCompatActivity {
                 minesLeft--;
             }
         }
+
+        // Filling in the numbers
+        detectAllProximities();
     }
 
     // provides and array of the indexes of the grid's neighbours
@@ -119,38 +114,59 @@ public class MainActivity extends AppCompatActivity {
         return buddies;
     }
 
-    // Sets the value of the selected grid based on the value of the button pressed
-    public void setGridValue(View v){
-        if(selectedCell != -1) {
-            Button curBut = (Button) findViewById(v.getId());
-            String butVal = curBut.getText().toString(); // This is the button's value
-
-            items[selectedCell] = butVal;
-            CustomGridAdapter gridAdapter = new CustomGridAdapter(MainActivity.this, items);
-            gv.setAdapter(gridAdapter);
-
-            selectedCell = -1;
-        }
-    }
-
-    // Randomizes the values of the grid that have not been entered yet
-    public void randomizeGrid(View v) {
-        for(int i = 0; i < items.length; i++) {
-            if(items[i] == null) {
-                String possibleLetters[] = new String[] {"A", "B", "C", "D", "E", "F", "G", "H", "I"};
-                Random rand = new Random();
-                int randomNum = rand.nextInt(9);
-                String randLetter = possibleLetters[randomNum];
-                items[i] = randLetter;
+    // Calculates the number of mines that surround a spot without a mine
+    public void detectCloseMines(int position) {
+        int numMines = 0;
+        ArrayList neighbours = findBuddies(position);
+        for(int i = 0; i < neighbours.size(); i++) {
+            if(items[Integer.parseInt(neighbours.get(i).toString())].equals("*")){
+                numMines++;
             }
         }
-
-
-
-        // Updating the grid's view
-        CustomGridAdapter gridAdapter = new CustomGridAdapter(MainActivity.this, items);
-        gv.setAdapter(gridAdapter);
+        items[position] = "" + numMines;
     }
+
+    // Calculates all of the mine neighbours
+    public void detectAllProximities() {
+        for(int i = 0; i < items.length; i++) {
+            if(!items[i].equals("*")){
+                detectCloseMines(i);
+            }
+        }
+    }
+
+    // Sets the value of the selected grid based on the value of the button pressed
+//    public void setGridValue(View v){
+//        if(selectedCell != -1) {
+//            Button curBut = (Button) findViewById(v.getId());
+//            String butVal = curBut.getText().toString(); // This is the button's value
+//
+//            items[selectedCell] = butVal;
+//            CustomGridAdapter gridAdapter = new CustomGridAdapter(MainActivity.this, items);
+//            gv.setAdapter(gridAdapter);
+//
+//            selectedCell = -1;
+//        }
+//    }
+
+    // Randomizes the values of the grid that have not been entered yet
+//    public void randomizeGrid(View v) {
+//        for(int i = 0; i < items.length; i++) {
+//            if(items[i] == null) {
+//                String possibleLetters[] = new String[] {"A", "B", "C", "D", "E", "F", "G", "H", "I"};
+//                Random rand = new Random();
+//                int randomNum = rand.nextInt(9);
+//                String randLetter = possibleLetters[randomNum];
+//                items[i] = randLetter;
+//            }
+//        }
+//
+//
+//
+//        // Updating the grid's view
+//        CustomGridAdapter gridAdapter = new CustomGridAdapter(MainActivity.this, items);
+//        gv.setAdapter(gridAdapter);
+//    }
 
 
     // This is just for debugging
