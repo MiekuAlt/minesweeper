@@ -2,7 +2,10 @@ package com.maltair.minesweeper;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,8 +18,10 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
+import static android.os.VibrationEffect.DEFAULT_AMPLITUDE;
 import static com.maltair.minesweeper.R.layout.activity_main;
 import static com.maltair.minesweeper.R.layout.cell;
 
@@ -30,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
     private SeekBar seekBar;
     private int difficulty; // 0 = easy, 1 = medium, 2 = hard
     private TextView difficultyText;
+    private int numFlags;
+    private boolean pauseGame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,17 +53,44 @@ public class MainActivity extends AppCompatActivity {
         gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if(!pauseGame) {
+                    if (!gameStarted) { // This activates on the first press
+                        items = new String[81];
+                        CustomGridAdapter gridAdapter = new CustomGridAdapter(MainActivity.this, items);
+                        gv.setAdapter(gridAdapter);
+                        gameStarted = true;
+                        spawnMines(position);
+                    }
 
-                if(!gameStarted) { // This activates on the first press
-                    gameStarted = true;
-                    spawnMines(position);
+                    if (items[position] == null) {
+                        // Reveals the clicked cell
+                        checkLocation(position);
+                    }
+                }
+            }
+        });
+
+        gv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+
+            @Override
+            public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+                //if(!pauseGame) {
+                    if (items[position] == null) {
+                        items[position] = "F";
+                        numFlags++;
+                        vibratePhone();
+                        winCheck();
+                    } else if (items[position].equals("F")) {
+                        items[position] = null;
+                        numFlags--;
+                        vibratePhone();
+                        winCheck();
+                    }
+
                     CustomGridAdapter gridAdapter = new CustomGridAdapter(MainActivity.this, items);
                     gv.setAdapter(gridAdapter);
-                }
-
-                // Reveals the clicked cell
-                checkLocation(position);
-
+                //}
+                return false;
             }
         });
 
@@ -90,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
     public void checkLocation(int pos) {
         if(key[pos].equals("*")) { // Stepping on a mine
             items[pos] = key[pos];
-            // TODO: Losing condition
+            anim(false);
         } else if(key[pos].equals("0")) { // No danger
             uncoverZeros(pos);
         } else {
@@ -208,7 +242,59 @@ public class MainActivity extends AppCompatActivity {
         gameStarted = false;
         CustomGridAdapter gridAdapter = new CustomGridAdapter(MainActivity.this, items);
         gv.setAdapter(gridAdapter);
+        pauseGame = false;
     }
 
+    // Triggers the phone to vibrate
+    public void vibratePhone() {
+        if (Build.VERSION.SDK_INT >= 26) {
+            ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(VibrationEffect.createOneShot(350,10));
+        } else {
+            ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(350);
+        }
+    }
+
+    // Checks if the user is a winner
+    public void winCheck() {
+        if(numFlags == NUM_MINES) {
+            int numCorrect = 0;
+            for(int i = 0; i < items.length; i++) {
+                if(items[i] != null && items[i].equals("F") && key[i].equals("*")){
+                    numCorrect++;
+                }
+            }
+
+            if(numCorrect == NUM_MINES) {
+                anim(true);
+            }
+        }
+
+    }
+
+    // Triggers the display
+    public void anim(boolean isHappy) {
+        items = new String[81];
+        // These are the array maps that holds the "pictures"
+        Integer[] happyMap = {11,15,20,24,29,33,46,52,56,60,66,67,68};
+        Integer[] sadMap = {11,15,20,24,29,33,48,49,50,56,60,64,70};
+
+        if(isHappy) {
+            List<Integer> mapList = Arrays.asList(happyMap);
+            for(int i = 0; i < items.length; i++) {
+                if(mapList.contains(i)) {
+                    items[i] = " ";
+                }
+            }
+        } else {
+            List<Integer> mapList = Arrays.asList(sadMap);
+            for(int i = 0; i < items.length; i++) {
+                if(mapList.contains(i)) {
+                    items[i] = "-1";
+                }
+            }
+        }
+        gameStarted = false;
+        pauseGame = true;
+    }
 
 } // end of MainActivity class

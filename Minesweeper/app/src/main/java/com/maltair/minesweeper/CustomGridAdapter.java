@@ -51,6 +51,9 @@ public class CustomGridAdapter extends BaseAdapter {
             tv.setBackgroundColor(Color.parseColor("#FF4081"));
         } else if(items[i] != null && items[i].equals("F")) {
             tv.setBackgroundColor(Color.parseColor("#6C5CE8"));
+        } else if(items[i] != null && items[i].equals("-1")) {
+            tv.setBackgroundColor(Color.parseColor("#FF4081"));
+            tv.setText("");
         } else if(items[i] != null && !items[i].equals(" ")) {
             tv.setBackgroundColor(Color.parseColor("#BEC9FF"));
         }
