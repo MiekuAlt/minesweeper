@@ -1,0 +1,11 @@
+Functionality:
+- Crisp and clean UI based on Android's material design
+- Grid cells change colour based on what is within them
+- Grid colours are designed to be appealing
+- Mines are automatically generated
+- A smile or frown is drawn in the grid if the player wins or loses
+- User can change the difficulty through the use of a slider
+- Device viberates when you add or remove a flag, this is so the user knows it happens (Finger would cover the grid)
+- Error checks are in place
+- Smart algorithm to ensure that the first cell a user presses is never a mine (That is not fun dieing on your first click)
+- All of the requirements are met along with these added functionalities

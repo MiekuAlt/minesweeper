@@ -1,0 +1,13 @@
+The algorithm used to automatically generate mines:
+- This was entirely designed by me
+- There is preset number of mines, depending on the difficulty
+- There exists two arrays, the one that transfers to the grid called items. The other is hidden from the user, and it is called the key. The key contains the information on where the mines are and the proximities.
+
+The algorithm:
+- The user presses their first grid cell
+- First the key is initialized with empty strings
+- It records the number of mines that there are supposed to be in an int called "minesLeft"
+- Then it loops until there are no mines left
+	- It determines a random index location and makes sure there is no mine on it already and makes sure that it is not the spot the user pressed, so that the first press is never a mine
+	- If the new index passes these checks, it adds a mine to the index and reduces "minesLeft" by one
+	- It continues to do this until there are no mines remaining
